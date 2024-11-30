@@ -27,8 +27,20 @@ read -p "Enter the disk to use (e.g., /dev/sda): " selected_disk < /dev/tty
 # Confirm the selection
 if [ -b "$selected_disk" ]; then
     echo "You have selected $selected_disk."
-    echo "Proceeding with installation..."
 else
     echo "Invalid disk selection. Please rerun the script and select a valid disk."
     exit
 fi
+
+# Data loss warning
+echo "======== WARNING ========"
+echo "You will lose all your data in $selected_disk"
+read -p "Do you want to proceed? [y/N]" proceed < /dev/tty
+if [[ "$proceed" =~ ^[Yy]$ ]]; then
+    echo "Proceeding with installation on $selected_disk..."
+else
+    echo "Installation aborted by the user."
+    exit
+fi
+
+
