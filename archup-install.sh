@@ -43,4 +43,27 @@ else
     exit
 fi
 
+while true; do
+	# Choose partition table type (GPT/MBR)
+	echo "Select partition type:"
+	echo "1) GPT"
+	echo "2) MBR"
+	echo "3) I don't know, help me please :("
+	read choice < /dev/tty
+	if [[ $choice == 1 ]]; then
+		echo "GPT selected"
+		partition_type="gpt"
+		break
+	elif [[ $choice == 2 ]]; then
+		echo "MBR selected"
+		partition_type="msdos"
+		break
+	elif [[ $choice == 3 ]]; then
+		echo "If your system is a modern one, it's more likely that\
+			you should choose GPT. But if you are trying to install\
+			Arch Linux on your grandma's computer, choose MBR"
+	else
+		echo "Invalid input"
+	fi
+done
 
