@@ -3,6 +3,9 @@
 echo "Archup Version 1.0.0"
 echo "Starting up..."
 
+# Run the script in interactive mode
+exec < /dev/tty
+
 # Check internet connection
 if ping -c 1 archlinux.org &> /dev/null
 then
@@ -14,7 +17,7 @@ else
 fi
 
 # Update date and time
-timedatectl
+timedatectl &> /dev/null
 echo "Date and time are synchronized"
 
 # List available disks
