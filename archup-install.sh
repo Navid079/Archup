@@ -82,7 +82,7 @@ fi
 
 # Get disk size
 disk_size=$(lsblk -b -n -d -o SIZE "$selected_disk")
-disk_size_gib=$((disk_size / 1024 / 1024 / 1024 - 1))  # Convert to GiB
+disk_size_gib=$((disk_size / 1024 / 1024 / 1024 - 2))  # Convert to GiB
 
 # Calculate partition sizes
 root_size=$disk_size_gib
