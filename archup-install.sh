@@ -47,6 +47,7 @@ fi
 efi_size=1  # Default EFI size in GiB
 swap_size=0
 home_percentage=0
+last_partition="root"
 
 # Prompt for partition table type
 read -p "Enter partition table type (gpt/msdos): " partition_type < /dev/tty
@@ -63,6 +64,7 @@ if [[ "$separate_home" =~ ^[Yy]$ ]]; then
         echo "Invalid percentage. Must be an integer between 1 and 99."
         exit 1
     fi
+    last_partition="home"
 else
     echo "No separate /home partition will be created."
 fi
@@ -75,6 +77,7 @@ if [[ "$separate_swap" =~ ^[Yy]$ ]]; then
         echo "Invalid swap size. Must be a positive integer."
         exit 1
     fi
+    last_partition="swap"
 else
     echo "No separate swap partition will be created. You can create a swapfile later if needed."
     swap_size=0
@@ -82,7 +85,7 @@ fi
 
 # Get disk size
 disk_size=$(lsblk -b -n -d -o SIZE "$selected_disk")
-disk_size_gib=$((disk_size / 1024 / 1024 / 1024 - 2))  # Convert to GiB
+disk_size_gib=$((disk_size / 1024 / 1024 / 1024))  # Convert to GiB
 
 # Calculate partition sizes
 root_size=$disk_size_gib
@@ -131,19 +134,30 @@ if [[ "$partition_type" == "gpt" ]]; then
     parted -s "$selected_disk" mkpart EFI fat32 1MiB "$((efi_size * 1024))MiB"
     parted -s "$selected_disk" set 1 esp on
     echo "Created EFI partition (1 GiB)."
-    partition_number=2
+fi
+
+# Calculate root end
+if [[ last_partition == "root" ]]; then
+	root_end="100%"
 else
-    partition_number=1
+	root_end="$((root_start + root_size * 1024 - 1))MiB"
 fi
 
 # Create root partition
-parted -s "$selected_disk" mkpart primary ext4 "${root_start}MiB" "$((root_start + root_size * 1024 - 1))MiB"
+parted -s "$selected_disk" mkpart primary ext4 "${root_start}MiB" "$root_end"
 echo "Created root partition ($root_size GiB)."
+
+# Calculate home end
+if [[ last_partition == "home" ]]; then
+	home_end="100%"
+else
+	home_end="$((home_start + home_size * 1024 - 1))MiB"
+fi
 
 # Create home partition if applicable
 if [[ "$separate_home" =~ ^[Yy]$ ]]; then
     home_start=$((root_start + root_size * 1024))
-    parted -s "$selected_disk" mkpart primary ext4 "${home_start}MiB" "$((home_start + home_size * 1024 - 1))MiB"
+    parted -s "$selected_disk" mkpart primary ext4 "${home_start}MiB" "$home_end"
     echo "Created home partition ($home_size GiB)."
 fi
 
