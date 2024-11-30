@@ -3,9 +3,6 @@
 echo "Archup Version 1.0.0"
 echo "Starting up..."
 
-# Run the script in interactive mode
-exec < /dev/tty
-
 # Check internet connection
 if ping -c 1 archlinux.org &> /dev/null
 then
@@ -25,7 +22,7 @@ echo "Select where to install Arch Linux:"
 lsblk -dpno NAME,SIZE | grep -E "/dev/sd|/dev/nvme"
 
 # Prompt user to select a disk
-read -p "Enter the disk to use (e.g., /dev/sda): " selected_disk
+read -p "Enter the disk to use (e.g., /dev/sda): " selected_disk < /dev/tty
 
 # Confirm the selection
 if [ -b "$selected_disk" ]; then
