@@ -143,6 +143,8 @@ else
 	root_end="$((root_start + root_size * 1024 - 1))MiB"
 fi
 
+echo "----> root_end=$root_end"
+
 # Create root partition
 parted -s "$selected_disk" mkpart primary ext4 "${root_start}MiB" "$root_end"
 echo "Created root partition ($root_size GiB)."
