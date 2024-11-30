@@ -137,20 +137,18 @@ if [[ "$partition_type" == "gpt" ]]; then
 fi
 
 # Calculate root end
-if [[ last_partition == "root" ]]; then
+if [[ "$last_partition" == "root" ]]; then
 	root_end="100%"
 else
 	root_end="$((root_start + root_size * 1024 - 1))MiB"
 fi
-
-echo "----> root_end=$root_end"
 
 # Create root partition
 parted -s "$selected_disk" mkpart primary ext4 "${root_start}MiB" "$root_end"
 echo "Created root partition ($root_size GiB)."
 
 # Calculate home end
-if [[ last_partition == "home" ]]; then
+if [[ "$last_partition" == "home" ]]; then
 	home_end="100%"
 else
 	home_end="$((home_start + home_size * 1024 - 1))MiB"
